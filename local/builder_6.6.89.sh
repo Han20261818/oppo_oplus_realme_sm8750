@@ -73,7 +73,7 @@ echo ">>> 初始化仓库..."
 rm -rf kernel_workspace
 mkdir kernel_workspace
 cd kernel_workspace
-git clone --depth=1 https://github.com/cctv18/android_kernel_common_oneplus_sm8750 -b oneplus/sm8750_v_15.0.0_oneplus_13_global common
+git clone --depth=1 https://github.com/cctv18/android_kernel_common_oneplus_sm8750 -b oneplus/sm8750_v_16.0.0_oneplus_13_6.6.89 common
 echo ">>> 初始化仓库完成"
 
 # ===== 清除 abi 文件、去除 -dirty 后缀 =====
@@ -90,7 +90,7 @@ echo ">>> 替换内核版本后缀..."
 for f in ./common/scripts/setlocalversion; do
   sed -i "\$s|echo \"\\\$res\"|echo \"-${CUSTOM_SUFFIX}\"|" "$f"
 done
-sudo sed -i 's/-4k/-${{ env.KERNEL_NAME }}/g' ./common/arch/arm64/configs/gki_defconfig
+sudo sed -i 's/^CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION="-'${CUSTOM_SUFFIX}'"/' ./common/arch/arm64/configs/gki_defconfig
 sed -i 's/${scm_version}//' ./common/scripts/setlocalversion
 echo "CONFIG_LOCALVERSION_AUTO=n" >> ./common/arch/arm64/configs/gki_defconfig
 
@@ -119,7 +119,7 @@ if [[ "$KSU_BRANCH" == "y" ]]; then
   git clone https://github.com/ShirkNeko/SukiSU_patch.git
   cp ./susfs4ksu/kernel_patches/50_add_susfs_in_gki-android15-6.6.patch ./common/
   if [[ "$APPLY_HOOKS" == "m" || "$APPLY_HOOKS" == "M" ]]; then
-    cp ./SukiSU_patch/hooks/scope_min_manual_hooks_v1.5.patch ./common/
+    cp ./SukiSU_patch/hooks/scope_min_manual_hooks_v1.6.patch ./common/
   fi
   if [[ "$APPLY_HOOKS" == "s" || "$APPLY_HOOKS" == "S" ]]; then
     cp ./SukiSU_patch/hooks/syscall_hooks.patch ./common/
@@ -130,7 +130,7 @@ if [[ "$KSU_BRANCH" == "y" ]]; then
   cd ./common
   patch -p1 < 50_add_susfs_in_gki-android15-6.6.patch || true
   if [[ "$APPLY_HOOKS" == "m" || "$APPLY_HOOKS" == "M" ]]; then
-    patch -p1 < scope_min_manual_hooks_v1.5.patch || true
+    patch -p1 < scope_min_manual_hooks_v1.6.patch || true
   fi
   if [[ "$APPLY_HOOKS" == "s" || "$APPLY_HOOKS" == "S" ]]; then
     patch -p1 < syscall_hooks.patch || true
